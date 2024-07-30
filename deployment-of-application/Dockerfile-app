@@ -1,0 +1,7 @@
+FROM quay.io/lkral/summer-base:latest
+
+USER root
+
+COPY application/target/spring-app.jar /spring-app.jar
+
+ENTRYPOINT ["java", "-jar", "/spring-app.jar"]
