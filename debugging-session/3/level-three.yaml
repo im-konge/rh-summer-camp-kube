@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: level-three
+  labels:
+    app: level-three
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gh-stats
+  namespace: level-three
+data:
+  stats.json: |
+    {
+      "contributorStats": {
+        "username": "JaneDoe",
+        "codingStats": {
+          "totalCommits": 350,
+          "totalRepositories": 12,
+          "openPullRequests": 3,
+          "closedIssues": 45
+        }
+      },
+    }
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gh-stats-admin
+  namespace: level-three
+type: Opaque
+data:
+  USERNAME: YWRtaW4=
+  PASSWORD: d3JvbmdfcGFzc3dvcmQ=
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gh-stats
+  namespace: level-three
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gh-stats
+  template:
+    metadata:
+      labels:
+        app: gh-stats
+    spec:
+      containers:
+        - name: gh-stats
+          image: quay.io/lkral/summer-debug:latest
+          env:
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: gh-stats
+                  key: USERNAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gh-stats
+                  key: PASSWORD
+            - name: CONFIG_PATH
+              value: "/config/stats.json"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: gh-stats
