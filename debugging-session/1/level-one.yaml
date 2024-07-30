@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: level-one
+  labels:
+    app: level-one
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: level-one
+  labels:
+    app: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: busy
+          image: quay.io/quay/busybox:1.4.2
+          command:
+            - "sh"
+            - "-c"
+            - "echo 'That was easy' && sleep 3600"

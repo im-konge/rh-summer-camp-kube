@@ -1,12 +1,11 @@
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
-USER root
-
-ARG JAVA_VERSION=17
-
 RUN microdnf update -y \
-    && microdnf install java-${JAVA_VERSION}-openjdk-headless shadow-utils -y \
+    && microdnf install java-17-openjdk-headless -y \
     && microdnf clean all
 
-# Set JAVA_HOME env var
-ENV JAVA_HOME /usr/lib/jvm/jre-17
+USER root
+
+COPY application/target/spring-app.jar /spring-app.jar
+
+CMD ["java", "-jar", "/spring-app.jar"]
